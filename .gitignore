@@ -17,3 +17,6 @@ artifacts/smoke-*
 cleaned.jsonl
 report.json
 PaperID_*.pdf
+paper_analysis.md
+implementation_plan.md
+fig1.png
