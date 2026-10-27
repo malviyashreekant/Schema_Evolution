@@ -1,0 +1,6 @@
+{"_source":"weather-a","temperature":18,"status":"ok"}
+{"_source":"weather-a","temperature":20,"status":"ok"}
+{"_source":"weather-a","temperature":22,"status":"ok"}
+{"_source":"weather-a","temperature":null,"status":"ok","humidity":48}
+{"_source":"weather-a","temperature":"21.5","status":"ok","humidity":49}
+{"_source":"weather-a","temperature":500,"status":"ok","humidity":50}
