@@ -170,7 +170,7 @@ def _write_synthetic(path: Path, baseline_count: int, test_count: int, seed: int
 def main() -> None:
     parser = argparse.ArgumentParser(prog="schema-evolution")
     parser.add_argument("--verbose", action="store_true", help="Enable diagnostic logging")
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
 
     process = commands.add_parser("process", help="Process a JSONL stream after per-source warm-up")
     process.add_argument("input", type=Path)
@@ -200,6 +200,12 @@ def main() -> None:
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
+    if args.command is None:
+        from schema_evolution.interactive import run_interactive
+
+        run_interactive()
+        return
+
     try:
         if args.command == "process":
             report = process_file(

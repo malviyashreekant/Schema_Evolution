@@ -17,8 +17,28 @@ This is a faithful, testable interpretation of the paper, not an exact reproduct
 Python 3.10 or newer is required. From the repository root:
 
 ```powershell
+# Only if .venv does not already exist:
+python -m venv .venv
+
+# Run these commands in the same PowerShell terminal:
+.\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
+python -m schema_evolution --help
 ```
+
+If the venv is already created, skip the creation line. Activation applies only to the current terminal; activate it again in each new PowerShell terminal. On macOS/Linux, use `source .venv/bin/activate` instead.
+
+## Interactive mode
+
+After installation and virtual-environment activation, start the guided terminal menu with no arguments:
+
+```powershell
+schema-evolution
+```
+
+Alternatively, run `python -m schema_evolution`. If PowerShell says `schema-evolution` is not recognized, the venv is probably not active in that terminal. Activate it there, or run `& ".\.venv\Scripts\schema-evolution.exe"` directly. Use the arrow keys to select **Process a JSONL data file**, **Generate synthetic test data**, **Run the synthetic benchmark**, or **Exit**, then press Enter. Prompts guide you through input/output paths and settings; the process option suggests the included sample and its three-record baseline when applicable. Processing and benchmark summaries are shown as terminal tables. Press Ctrl+C to cancel the current prompt.
+
+The direct subcommands below remain available for scripts and automation.
 
 ## Run the tests
 
@@ -45,6 +65,16 @@ schema-evolution process input.jsonl --baseline-records-per-source 50 --output c
 
 Each JSONL output row contains the original `raw` record, a `cleaned` candidate, correction audit entries, drift evidence, and `quarantined`. Consumers should route quarantined rows for review; this local CLI does not connect to a broker or database.
 
+### Try the included sample
+
+The included sample has six records, with the first three used for baseline fitting:
+
+```powershell
+python -m schema_evolution process sample_stream.jsonl --baseline-records-per-source 3 --output prototype_output/cleaned.jsonl --report prototype_output/report.json
+```
+
+The command prints a summary. The cleaned audit records and full report are written to `prototype_output/`.
+
 ## Generate synthetic files
 
 ```powershell
@@ -60,11 +90,11 @@ The checked-in [benchmark report](artifacts/benchmark-report.json) summarizes **
 
 | Method | Repair precision | Repair recall | Missing-value completeness | Schema adaptability | p95 latency |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Proposed MLP + fuzzy + GA | **86.0%** | 57.2% | 66.7% | **100%** | 1.526 ms |
-| Static rules | 84.8% | **63.6%** | **100%** | 0% | **1.301 ms** |
-| No-op | 0% | 0% | 0% | 0% | 0.0003 ms |
+| Proposed MLP + fuzzy + GA | **86.0%** | 57.2% | 66.7% | **100%** | 2.311 ms |
+| Static rules | 84.8% | **63.6%** | **100%** | 0% | 2.374 ms |
+| No-op | 0% | 0% | 0% | 0% | 0.0004 ms |
 
-**What this indicates:** on this generated workload, the proposed pipeline detected and accepted both expected schema transitions in each trial and had slightly higher repair precision than the static baseline. Its conservative fuzzy abstention reduced fill rate and repair recall, and its p95 latency was slightly higher than static rules. This is a tradeoff, not a blanket performance win.
+**What this indicates:** on this generated workload, the proposed pipeline detected and accepted both expected schema transitions in each trial and had slightly higher repair precision than the static baseline. Its conservative fuzzy abstention reduced fill rate and repair recall. The latest run's p95 latency was similar to the static baseline; timing varies with the local machine and load. This is a tradeoff, not a blanket performance win.
 
 **Scope of the evidence:** these are local synthetic results, not validation on production data and not a reproduction of the paper's reported percentages or 12 ms latency. The benchmark's completeness is fill rate (non-null results for originally missing fields), not proof that imputed values are correct. Repair matches use a robust-scale tolerance; see [docs/architecture.md](docs/architecture.md) for metric definitions and limitations.
 
